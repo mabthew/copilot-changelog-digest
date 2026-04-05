@@ -1,15 +1,7 @@
----
-name: copilot-changelog-digest
-displayName: Copilot Changelog Digest
-description: Smart changelog analyzer that ranks Copilot updates by workflow impact for your specific tech stack
-keywords: copilot, changelog, digests, automation, workflow-optimization
-maintainer: mabthew
-repo: https://github.com/mabthew/copilot-changelog-digest
-category: productivity
-tags: [copilot, changelog, digests, workflow-optimization]
----
-
 # Copilot Changelog Digest
+
+**name:** copilot-changelog-digest  
+**description:** Smart changelog analyzer that ranks Copilot updates by workflow impact for your specific tech stack
 
 Get **actionable insights** from Copilot's changelog, ranked by what matters most to *your* workflow.
 
