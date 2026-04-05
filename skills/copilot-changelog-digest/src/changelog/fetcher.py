@@ -11,10 +11,10 @@ import os
 
 
 class ChangelogFetcher:
-    """Fetch Copilot changelog from GitHub API."""
+    """Fetch Copilot CLI changelog from GitHub API."""
 
     REPO_OWNER = "github"
-    REPO_NAME = "copilot-language-server-release"
+    REPO_NAME = "copilot-cli"
     API_BASE = "https://api.github.com"
 
     def __init__(self, days: int = 7):
