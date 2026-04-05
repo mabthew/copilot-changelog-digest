@@ -1,7 +1,9 @@
-# Copilot Changelog Digest
+---
+name: copilot-changelog-digest
+description: Smart changelog analyzer that ranks Copilot updates by workflow impact for your specific tech stack
+---
 
-**name:** copilot-changelog-digest  
-**description:** Smart changelog analyzer that ranks Copilot updates by workflow impact for your specific tech stack
+# Copilot Changelog Digest
 
 Get **actionable insights** from Copilot's changelog, ranked by what matters most to *your* workflow.
 
