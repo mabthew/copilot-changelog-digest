@@ -57,8 +57,8 @@ def main():
     phase2_results = _run_phase2(phase1_results)
 
     # Phase 3: Use Case Generation
-    print("Phase 3: Generating use cases...")
-    phase3_results = _run_phase3(phase1_results, phase2_results)
+    print("Phase 3: Generating use cases with personalization...")
+    phase3_results = _run_phase3(phase1_results, phase2_results, args)
 
     # Phase 4: Output Generation
     print("Phase 4: Generating report...")
@@ -104,19 +104,57 @@ def _run_phase2(phase1_results: Dict) -> Dict:
     }
 
 
-def _run_phase3(phase1_results: Dict, phase2_results: Dict) -> Dict:
-    """Execute Phase 3: Generate use cases."""
+def _run_phase3(phase1_results: Dict, phase2_results: Dict, args=None) -> Dict:
+    """Execute Phase 3: Generate use cases with chronicle and code analysis integration."""
+    from src.chronicle.client import ChronicleClient
+    from src.insights.code_analyzer import CodeAnalyzer
+    from src.insights.pattern_matcher import PatternMatcher
+
     repo_context = phase1_results.get("repo_context", {})
     repo_path = phase1_results.get("repo_path", ".")
     scored_features = phase2_results.get("scored_features", [])
 
-    # Generate use cases for top 5 features
-    generator = UseCaseGenerator(repo_path, repo_context)
+    # Phase 4a: Initialize Chronicle client
+    chronicle_client = ChronicleClient()
+    chronicle_context = {}
+    try:
+        chronicle_context = chronicle_client.get_personalization_context(repo_path)
+    except Exception:
+        pass  # Gracefully degrade if chronicle unavailable
+
+    # Phase 4b: Analyze code patterns
+    code_analysis = {}
+    try:
+        code_analyzer = CodeAnalyzer(repo_path)
+        code_analysis = code_analyzer.analyze_repository()
+    except Exception:
+        pass  # Gracefully degrade if analysis fails
+
+    # Phase 4c: Create pattern matcher
+    pattern_matcher = None
+    try:
+        if code_analysis and chronicle_context:
+            pattern_matcher = PatternMatcher(
+                code_analysis, chronicle_context, repo_context
+            )
+    except Exception:
+        pass
+
+    # Generate use cases with integrated context
+    generator = UseCaseGenerator(
+        repo_path,
+        repo_context,
+        code_analysis=code_analysis,
+        chronicle_context=chronicle_context,
+        pattern_matcher=pattern_matcher,
+    )
     features_with_usecases = generator.generate_use_cases(scored_features, top_n=5)
 
     return {
         "features_with_usecases_count": len(features_with_usecases),
         "features": features_with_usecases,
+        "chronicle_context": chronicle_context,
+        "code_analysis": code_analysis,
     }
 
 
