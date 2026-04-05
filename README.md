@@ -8,9 +8,11 @@ This skill:
 
 1. **Fetches** the latest Copilot changelog from GitHub (last N days)
 2. **Analyzes** your repository (tech stack, dependencies, recent commits)
-3. **Scores** changelog items by workflow impact and relevance to YOUR code
-4. **Generates** actionable use cases grounded in your actual codebase
-5. **Outputs** a focused, human-readable report of the most important updates
+3. **Scans your code** for patterns (async issues, error handling, testing gaps, performance bottlenecks)
+4. **Fetches your development patterns** via `/chronicle` (recent files, workflow patterns, error patterns)
+5. **Scores** changelog items by workflow impact and relevance to YOUR code
+6. **Generates** actionable use cases grounded in your actual codebase with concrete examples
+7. **Outputs** a focused report with repository-specific recommendations and time savings estimates
 
 ## Quick Start
 
@@ -97,7 +99,17 @@ Results are synced before proceeding.
 - Estimate impact (time saved, errors prevented, etc.)
 - Link to official documentation
 
-### Phase 4: Output Generation
+### Phase 4: /Chronicle Integration & Repository-Grounded Personalization (NEW)
+
+- **Code Analysis**: Scan your codebase for patterns (async/await issues, error handling gaps, testing coverage, performance bottlenecks)
+- **Chronicle Integration**: Fetch your development patterns (recent files, workflow preferences, error patterns, focus areas)
+- **Pattern Matching**: Link changelog features directly to specific files in YOUR repository
+- **Personalized Impact**: Generate "Why This Matters To YOU" section with concrete examples and realistic time savings estimates
+- **Next Steps**: Provide actionable next steps specific to your codebase
+
+See [Phase 4 Documentation](./skills/copilot-changelog-digest/PHASE4_CHRONICLE.md) for details on repository-grounded personalization.
+
+### Phase 5: Output Generation
 
 - Generate focused markdown report (not all changes, just the important ones)
 - Format for easy reading and sharing
