@@ -3,6 +3,7 @@ Copilot CLI changelog fetcher - multi-source.
 Fetches from:
 1. GitHub releases API (github/copilot-cli) - primary source (authority: 100)
 2. changelog.md markdown - secondary source (authority: 80)
+3. docs.github.com/en/copilot - tertiary source (authority: 60)
 """
 
 import json
@@ -11,6 +12,8 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 import os
 from .markdown_parser import MarkdownChangelogParser
+from .docs_crawler import DocsCrawler
+from .cache import DocsCache
 
 
 class ChangelogFetcher:
@@ -120,29 +123,70 @@ class ChangelogFetcher:
 
     def fetch_combined(self) -> List[Dict]:
         """
-        Fetch and merge all sources (API + markdown).
+        Fetch and merge all sources (API + markdown + docs).
         Returns unified changelog list with source attribution.
         """
         try:
             api_releases = self.fetch_releases()
         except Exception as e:
-            print(f"Warning: API fetch failed: {e}, continuing with markdown only")
+            print(f"Warning: API fetch failed: {e}, continuing with other sources")
             api_releases = []
 
         try:
             markdown_entries = self.fetch_changelog_markdown()
         except Exception as e:
-            print(f"Warning: Markdown fetch failed: {e}, continuing with API only")
+            print(f"Warning: Markdown fetch failed: {e}, continuing with other sources")
             markdown_entries = []
 
-        if api_releases and markdown_entries:
-            return self.merge_sources(api_releases, markdown_entries)
-        elif api_releases:
-            return api_releases
-        elif markdown_entries:
-            return markdown_entries
-        else:
-            return []
+        try:
+            cache = DocsCache()
+            crawler = DocsCrawler(days=self.days, cache=cache)
+            docs_entries = crawler.crawl_recent_docs()
+        except Exception as e:
+            print(f"Warning: Docs crawl failed: {e}, continuing with API and markdown")
+            docs_entries = []
+
+        # Merge all sources
+        merged = self.merge_sources(api_releases, markdown_entries)
+        if docs_entries:
+            merged = self._merge_docs_into_changelog(merged, docs_entries)
+
+        return merged if merged else []
+
+    def _merge_docs_into_changelog(
+        self, changelog: List[Dict], docs_entries: List[Dict]
+    ) -> List[Dict]:
+        """
+        Add documentation entries to changelog.
+        Docs are added as separate entries (not merged with releases).
+        """
+        # Add docs entries at the beginning (newer "content")
+        # Each doc becomes a changelog entry
+        doc_items = []
+        for doc in docs_entries:
+            doc_items.append(
+                {
+                    "title": doc["title"],
+                    "url": doc.get("url"),
+                    "description": doc.get("description", ""),
+                    "category": "Documentation",
+                    "source": doc.get("source", "docs.github.com"),
+                    "authority": doc.get("authority", 60),
+                    "date": doc.get("last_updated") or doc.get("fetched_at"),
+                    "last_updated": doc.get("last_updated"),
+                }
+            )
+
+        # Combine docs with changelog, sorted by date
+        combined = doc_items + changelog
+        try:
+            return sorted(
+                combined,
+                key=lambda x: x.get("date") or x.get("last_updated") or "",
+                reverse=True,
+            )
+        except Exception:
+            return combined
 
     def to_json(self, releases: List[Dict]) -> str:
         """Convert releases to JSON string."""

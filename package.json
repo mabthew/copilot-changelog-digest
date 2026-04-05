@@ -46,7 +46,7 @@
     "platforms": ["macos", "linux", "windows"],
     "requirements": {
       "python": ">=3.8",
-      "dependencies": ["requests", "PyYAML"]
+      "dependencies": ["requests", "PyYAML", "beautifulsoup4"]
     }
   }
 }
