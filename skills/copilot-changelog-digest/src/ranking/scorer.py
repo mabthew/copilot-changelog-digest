@@ -46,11 +46,17 @@ class RelevanceScorer:
         }
 
         # Weighted sum: tech (30%) + workflow (50%) + user context (20%)
-        total = (
+        base_score = (
             breakdown["tech_stack_match"] * 0.30
             + breakdown["workflow_impact"] * 0.50
             + breakdown["user_context_match"] * 0.20
         )
+
+        # Apply source authority weighting (API: 100%, Markdown: 80%, Docs: 60%)
+        authority = feature.get("authority", 100)  # Default to API authority
+        authority_multiplier = authority / 100.0
+        total = base_score * authority_multiplier
+        breakdown["source_authority"] = authority
 
         return {"total": total, "breakdown": breakdown}
 
