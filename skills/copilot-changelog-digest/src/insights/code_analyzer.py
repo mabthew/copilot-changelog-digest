@@ -22,7 +22,7 @@ class CodeAnalyzer:
 
     def __init__(self, repo_path: str):
         """Initialize analyzer with repository path."""
-        self.repo_path = Path(repo_path).resolve()
+        self.repo_path = Path(repo_path).expanduser().resolve()
         self.patterns = {}
         self._file_cache = {}
 

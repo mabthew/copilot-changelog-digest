@@ -105,7 +105,7 @@ class ChronicleClient:
             "focus_areas": [area_name, ...]
         }
         """
-        cache_key = f"chronicle:patterns:{Path(repo_path).resolve()}"
+        cache_key = f"chronicle:patterns:{Path(repo_path).expanduser().resolve()}"
         cached = self.cache.get(cache_key)
         if cached:
             return cached
@@ -157,7 +157,7 @@ class ChronicleClient:
         self, repo_path: str, error_msg: Optional[str] = None
     ) -> Dict:
         """Return fallback patterns when chronicle is unavailable."""
-        repo_path = Path(repo_path).resolve()
+        repo_path = Path(repo_path).expanduser().resolve()
 
         # Try to extract some basic patterns from git history if possible
         recent_files = []
