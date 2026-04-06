@@ -130,10 +130,26 @@ class PatternMatcher:
 
         for file_path, file_pattern_list in file_patterns.items():
             if any(p in file_pattern_list for p in patterns):
-                affected.add(file_path)
+                # Clean up worktree paths (.claude/worktrees/*/...)
+                clean_path = self._clean_worktree_path(file_path)
+                affected.add(clean_path)
 
         # Return top files by frequency
         return sorted(list(affected))[:3]
+
+    def _clean_worktree_path(self, file_path: str) -> str:
+        """Remove .claude/worktrees prefix from paths."""
+        if ".claude/worktrees/" in file_path:
+            # Extract everything after the worktree directory
+            parts = file_path.split(".claude/worktrees/")
+            if len(parts) > 1:
+                # Skip the worktree name and return the rest
+                after_worktree = parts[1]
+                # Remove the worktree name (first path component)
+                path_parts = after_worktree.split("/", 1)
+                if len(path_parts) > 1:
+                    return path_parts[1]
+        return file_path
 
     def _estimate_time_savings(self, patterns: List[str], affected_files: List[str]) -> float:
         """Estimate time savings per week based on pattern severity and frequency."""
